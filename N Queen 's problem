@@ -1,0 +1,32 @@
+def print_board(board):
+    size = len(board)
+    for row in range(size):
+        line = ['.'] * size
+        line[board[row]] = 'Q'
+        print(' '.join(line))
+    print()
+def is_safe(board, row, col):
+    for i in range(row):
+        if board[i] == col or \
+           board[i] - i == col - row or \
+           board[i] + i == col + row:
+            return False
+    return True
+def solve_queens(board, row):
+    size = len(board)
+    if row == size:
+        print_board(board)
+        return True
+    for col in range(size):
+        if is_safe(board, row, col):
+            board[row] = col
+            if solve_queens(board, row + 1):
+                return True
+            board[row] = -1
+    return False
+def eight_queens():
+    size = 8
+    board = [-1] * size
+    if not solve_queens(board, 0):
+        print("No solution found.")
+eight_queens()
