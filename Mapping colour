@@ -1,0 +1,58 @@
+def select_unassigned_variable(assignment, variables):
+    for var in variables:
+        if var not in assignment:
+            return var
+    return None
+
+def is_consistent(var, value, assignment, constraints):
+    for neighbor in constraints[var]:
+        if neighbor in assignment and assignment[neighbor] == value:
+            return False
+    return True
+
+def forward_check(var, value, domains, assignment, constraints):
+    for neighbor in constraints[var]:
+        if neighbor not in assignment:
+            if value in domains[neighbor]:
+                domains[neighbor].remove(value)
+            if not domains[neighbor]:
+                return False
+    return True
+
+def backtrack(assignment, variables, domains, constraints):
+    if len(assignment) == len(variables):
+        return assignment
+
+    var = select_unassigned_variable(assignment, variables)
+    for value in domains[var]:
+        if is_consistent(var, value, assignment, constraints):
+            assignment[var] = value
+            local_domains = domains.copy()
+            local_domains[var] = [value]
+            if forward_check(var, value, local_domains, assignment, constraints):
+                result = backtrack(assignment, variables, local_domains, constraints)
+                if result:
+                    return result
+            assignment.pop(var)
+
+    return None
+
+def map_coloring(variables, domains, constraints):
+    assignment = {}
+    return backtrack(assignment, variables, domains, constraints)
+
+# Example usage
+variables = ['WA', 'NT', 'SA', 'Q', 'NSW', 'V', 'T']
+domains = {var: ['Red', 'Green', 'Blue'] for var in variables}
+constraints = {
+    'WA': ['NT', 'SA'],
+    'NT': ['WA', 'SA', 'Q'],
+    'SA': ['WA', 'NT', 'Q', 'NSW', 'V'],
+    'Q': ['NT', 'SA', 'NSW'],
+    'NSW': ['Q', 'SA', 'V'],
+    'V': ['SA', 'NSW'],
+    'T': []
+}
+
+solution = map_coloring(variables, domains, constraints)
+print("Solution:", solution)
